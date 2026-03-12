@@ -51,7 +51,13 @@ While developing this component, our main focus was to ensure that the system co
 We paid special attention to maintaining consistency in board representation and ensuring that each move correctly updates the board state. Different board configurations were tested during development to verify that the engine behaves correctly in a wide range of situations.
 
 This component forms the decision-making part of the system.
-for more information on task1 refer https://github.com/vanshika-15dh/SHEBOTS_HIMADRI/blob/main/task%201/readme.md
+### Task 1 – Detailed Documentation
+
+For a more detailed explanation of Task 1, including the implementation
+and design approach, please refer to the following link:
+
+🔗 https://github.com/vanshika-15dh/SHEBOTS_HIMADRI/blob/main/task%201/readme.md
+
 
 ---
 
@@ -60,6 +66,13 @@ for more information on task1 refer https://github.com/vanshika-15dh/SHEBOTS_HIM
 Our perception pipeline was built and validated within a simulation environment to ensure the board state is reconstructed both accurately and robustly. By processing a live overhead camera feed, the system utilizes OpenCV’s ArUco library to detect specific markers: IDs 21–24 define the arena corners for pose estimation, while IDs 1–10 identify the individual game pieces. To bridge the gap between pixels and physical space, we calculate a homography matrix using cv2.findHomography() based on those four corner markers. This allows the pixel_to_world() function to apply a cv2.perspectiveTransform(), converting any detected piece's center coordinate into precise world coordinates.
 
 To map these coordinates to the actual 6×6 game grid, the pipeline normalizes the spatial range of -300mm to 300mm and divides by the 100mm square size, effectively pinpointing the exact row and column (0–5) for every piece. The final output is a 6×6 NumPy array that mirrors the board state required for our Task 1 logic. Throughout testing, the system proved it could handle various board configurations entirely on its own, achieving reliable marker detection and reconstruction without any manual calibration or hardcoded positions.
+
+### Task 2 – Detailed Documentation
+
+For a detailed explanation of the perception system and simulation,
+please refer to the documentation below:
+
+(https://github.com/vanshika-15dh/SHEBOTS_HIMADRI/blob/main/task2/readme.md)
 
 ---
 
