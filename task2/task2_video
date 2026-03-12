@@ -1,23 +1,31 @@
+Task 2 – Simulation Demonstration
 
-## Task 2 Simulation Demonstration
-
-To better illustrate how the perception system works, we have also recorded a short video showing the **Gazebo simulation and perception pipeline in action**.
+To better illustrate how the perception system works, we also recorded
+a short video showing the simulation of the perception pipeline.
 
 The video demonstrates the following:
 
-- The simulated chess board environment in Gazebo  
-- Detection of ArUco markers from the camera view  
-- Mapping of detected markers to board coordinates  
-- Reconstruction of the 6 × 6 board configuration  
+- The simulated chess board environment in Gazebo
+- Detection of ArUco markers from the camera view
+- Mapping of detected markers to board coordinates
+- Reconstruction of the 6 × 6 board configuration
 
-This video provides a clearer understanding of how the perception module processes visual input and converts it into a board state that can be used by the game engine.
+This video provides a clearer understanding of how the perception
+module processes visual input and converts it into a board state
+that can be used by the game engine.
 
-### Video Link
+Video Link
 
 You can watch the full simulation demonstration here:
 
-**Simulation Video:**  
-https://docs.google.com/videos/d/1y3lo1QQUmyWeAw8v45l4or5U9ue_xDT4w98kWj9SoU4/edit?usp=sharing
+Simulation Video:
+https://docs.google.com/videos/d/1y3lo1QQUmyWeAw8v4514or5U9ue_xDT4w98kWj9SoU4/edit
 
-> Note: The video shows the perception pipeline running step-by-step and helps visualize how the board state is detected from the camera input.
+Note:
+The video shows the perception pipeline running step-by-step and
+helps visualize how the board configuration is detected from
+the camera input.
+
+
+
 
