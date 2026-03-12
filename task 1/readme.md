@@ -1,199 +1,168 @@
-# RoboGambit Engine – Task 1
+# Introduction
 
-## Introduction
+In this task, we built a chess engine that can play a **6 × 6 chess variant**. The engine takes a board configuration as input and determines a strong move for the player whose turn it is.
 
-In this task, we built a chess engine capable of playing a 6×6 chess variant. The engine receives a board configuration and determines a strong move for the player whose turn it is.
+Our main idea was simple: first generate all possible legal moves, then explore how the game might continue after each move, and finally choose the move that leads to the most promising board position.
 
-The overall approach is to generate all possible moves, explore how the game might continue after those moves, and select the move that leads to the most favorable board position.
+One challenge in chess engines is that the number of possible game states grows extremely quickly. Exploring every possible continuation would take far too long. To handle this, we designed the engine to focus on the most promising branches while skipping clearly weaker options.
 
-Since the number of possible game states grows extremely quickly, exploring every possibility would take too long. To make the engine practical, we used several techniques that allow it to focus only on promising branches of the search while ignoring clearly weaker options.
+This makes the engine much more practical and allows it to analyze deeper positions within limited time.
 
-## Board Representation
+---
 
-The chess board is stored as a NumPy array of length 36, representing the 6×6 board. Each number represents a piece on the board:
+# Board Representation
 
-| Piece  | White ID | Black ID |
-|--------|----------|----------|
-| Pawn   | 1        | 6        |
-| Knight | 2        | 7        |
-| Bishop | 3        | 8        |
-| Queen  | 4        | 9        |
-| King   | 5        | 10       |
+The chess board is stored as a **NumPy array of length 36**, which corresponds to the **6 × 6 board**.
 
-Instead of using a 2‑D matrix, we store the board in a flattened format, which simplifies indexing and speeds up board updates.
+Each number in the array represents a specific piece on the board. White and black pieces use different identifiers so that the engine can easily distinguish between them.
 
-Example initialization:
+| Piece | White ID | Black ID |
+|------|------|------|
+| Pawn | 1 | 6 |
+| Knight | 2 | 7 |
+| Bishop | 3 | 8 |
+| Queen | 4 | 9 |
+| King | 5 | 10 |
 
-```python
-import numpy as np
+Instead of storing the board as a two-dimensional grid, we used a **flattened structure**. This means the board is stored as a single list of 36 values.
 
-board = np.zeros(36, dtype=int)
-board = 4   # white queen
-board = 10 # black king
+For example:
 
-This compact representation makes the engine faster when accessing or modifying squares.
+- Index **0–5** represent the first row  
+- Index **6–11** represent the second row  
 
-## Move Representation
+This representation makes indexing easier and speeds up board updates during the search.
 
-To keep the engine efficient, we represent every move using a single integer. The source and destination coordinates are packed together using bit operations.
+Example of how a board state might look conceptually:
 
-Example encoding:
+[2, 3, 4, 5, 3, 2,
+1, 1, 1, 1, 1, 1,
+0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0,
+6, 6, 6, 6, 6, 6,
+7, 8, 9,10, 8, 7]
 
-def encode_move(sr, sc, dr, dc):
-    return sr | (sc << 3) | (dr << 6) | (dc << 9)
 
-Decoding a move:
-def decode_move(move):
-    sr =  move        & 7
-    sc = (move >> 3)  & 7
-    dr = (move >> 6)  & 7
-    dc = (move >> 9)  & 7
-    return sr, sc, dr, dc
+Here, `0` represents an empty square.
 
-Using integers instead of complex objects helps reduce memory usage and speeds up comparisons inside the search.
+---
 
-## Exploring Possible Moves
-To choose the best move, the engine first generates all legal moves for the current player. For each move:
+# Move Representation
 
-The move is temporarily applied to the board.
+To keep the engine efficient, every move is represented in a **compact format**.
 
-The program examines possible responses by the opponent.
+Instead of storing large objects, the source and destination squares are packed together into a single value. This reduces memory usage and speeds up comparisons during the search.
 
-This process continues several steps into the future.
+For example, a move such as:
+A2 → A3
 
-Example of applying a move on a flat 36‑element board:
-def make_move(board, move):
-    sr, sc, dr, dc = decode_move(move)
-    src = sr * 6 + sc
-    dst = dr * 6 + dc
 
-    piece = board[src]
-    board[src] = 0
-    board[dst] = piece
-During this exploration, the engine keeps track of the best position found so far. If it becomes clear that a certain path cannot lead to a better result, the engine stops exploring that path (similar to alpha–beta pruning).
+internally stores the starting square and destination square in a compact encoded form. Whenever needed, the engine can decode this value to determine where the move starts and where it ends.
 
-## Gradual Deepening of Search
-Instead of immediately searching very deep positions, the engine analyzes the game in stages. It first looks a few moves ahead and then gradually increases the depth.
+This approach becomes especially useful when the engine explores thousands of moves while searching deeper positions.
 
-Example structure:
-def search(board, depth):
-    # placeholder for actual search implementation
-    best_move = None
-    best_score = -10**9
-    # ...
-    return best_move
+---
 
-def iterative_search(board, max_depth):
-    best_move = None
-    depth = 1
-    while depth <= max_depth:
-        best_move = search(board, depth)
-        depth += 1
-    return best_move
-This approach ensures that the engine always has a valid move ready, even if the time limit is reached before the deepest search finishes.
+# Exploring Possible Moves
 
-## Position Evaluation
-When the engine reaches the end of a search branch, it estimates how favorable the board position is. The evaluation mainly considers:
+To decide the best move, the engine first generates **all legal moves** for the current player.
 
-Material balance
+For each possible move:
 
-Piece mobility
+1. The move is temporarily applied to the board  
+2. The engine checks how the opponent might respond  
+3. This process continues several steps into the future  
 
-Pawn structure
+While exploring these possibilities, the engine keeps track of the strongest position it has found so far. If it becomes clear that a particular path cannot produce a better outcome than an already discovered move, that path is ignored and the engine moves on to the next one.
 
-Piece placement
+This helps reduce unnecessary computation and improves overall performance.
 
-Example of a simple evaluation idea:
-piece_values = {
-    1: 100, 2: 320, 3: 330, 4: 900, 5: 20000,
-    6: -100, 7: -320, 8: -330, 9: -900, 10: -20000,
-}
+---
 
-def evaluate(board):
-    score = 0
-    for piece in board:
-        score += piece_values.get(int(piece), 0)
-    return score
+# Gradual Deepening of Search
 
-This score helps the engine decide which positions are stronger from the current player’s perspective.
+Instead of immediately analyzing very deep positions, the engine searches **in stages**.
 
-## Avoiding Repeated Calculations
-During the search, the same board position may appear multiple times through different move sequences. To prevent repeating the same work, the engine stores information about positions that were already analyzed. If the same position appears again later, the stored result can be reused instead of recomputing it.
+It first explores a small number of moves ahead and then gradually increases the depth of the search. This way the engine always has a reasonable move ready, even if the deeper search has not finished yet.
 
-Example idea:
-visited_positions = {}
+This method also helps the engine identify promising moves earlier and focus more attention on them.
 
-def search_with_cache(board, depth):
-    position_hash = hash(board.tobytes())
-    if position_hash in visited_positions and visited_positions[position_hash] >= depth:
-        return visited_positions[position_hash][1]
+---
 
-    score = search(board, depth)
-    visited_positions[position_hash] = (depth, score)
-    return score
-This significantly improves performance when the search goes deeper.
+# Position Evaluation
 
-## Pawn Promotion Rule
-The promotion rule used in this variant differs slightly from standard chess. A pawn can only promote to a piece that has already been captured earlier in the game.
+When the engine reaches the end of a search branch, it estimates how favorable the board position is.
 
-Example logic:
-def handle_promotion(board, index, captured_pieces, is_white):
-    pawn = board[index]
-    last_rank = (index // 6 == 5) if is_white else (index // 6 == 0)
+The evaluation mainly considers:
 
-    if pawn in (1, 6) and last_rank and captured_pieces:
-        promote_to = captured_pieces.pop()  # choose from previously captured pieces
-        board[index] = promote_to
+- **Material balance** (which side has stronger pieces)
+- **Piece mobility** (how many moves pieces can make)
+- **Pawn structure**
+- **Piece placement**
 
-This rule makes promotion more dynamic and depends on how the game has progressed.
+Each piece is assigned a value based on its importance in the game. For example, queens are more valuable than pawns, and kings are extremely important since losing the king ends the game.
 
-## Testing the Engine
-To verify the engine’s behavior, we tested it with two types of starting boards.
+Using these values, the engine calculates a score that indicates which player has the advantage.
 
-Fixed Starting Position
-Useful for debugging and consistent testing.
-import numpy as np
+---
 
-fixed_board = np.array([
-    2, 3, 4, 5, 3, 2,
-    1, 1, 1, 1, 1, 1,
-    0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0,
-    6, 6, 6, 6, 6, 6,
-    7, 8, 9,10, 8, 7,
-], dtype=int)
+# Avoiding Repeated Calculations
 
-## Randomized Starting Position
-Back rank pieces are shuffled while keeping bishops on opposite colors.
-import numpy as np
-import random
+During the search, the same board position can sometimes appear through different move sequences.
 
-def random_back_rank(white=True):
-    # Example pool: [N, B, Q, K, B, N]
-    pieces =  if white else[2][3][4][5][6][7][8][9]
-    random.shuffle(pieces)
-    return pieces
+Instead of recalculating the same position again, the engine stores results of positions that were already analyzed. If the same position appears later, the stored result can be reused.
 
-back = random_back_rank(white=True)
-board = np.zeros(36, dtype=int)
-for c, p in enumerate(back):
-    board[c] = p
+This significantly improves efficiency, especially when the search goes deeper.
 
-Randomized setups ensure the engine handles a wide range of positions.
+---
 
-## Final Move Output
-Once the engine finishes its analysis, it returns the selected move in the format:
-<piece_id>:<source_square>-><destination_square>
+# Pawn Promotion Rule
 
-Example output:
-1:A2->A3
-This means a white pawn moves from A2 to A3.
+The promotion rule in this variant is slightly different from standard chess.
 
-## Conclusion
-In this project, we implemented a chess engine capable of playing a 6×6 chess variant. The engine generates moves, explores possible continuations of the game, evaluates board positions, and selects a move that appears most promising.
+A pawn can only promote to a piece that has already been **captured earlier in the game**.
 
-Through efficient board representation, careful exploration of game states, and reuse of previously analyzed positions, the engine is able to analyze deeper positions within a limited time.
+For example:
 
-Working on this project helped us understand how strategic decision-making in board games can be translated into computational algorithms and optimized for performance.
+- If a queen has been captured earlier, a pawn reaching the last rank may promote to a queen.
+- If only bishops or knights were captured, those become the available promotion options.
 
-undefined
+This makes promotion depend on how the game has progressed.
+
+---
+
+# Testing the Engine
+
+To make sure the engine behaves correctly, we tested it using different types of board setups.
+
+### Fixed Starting Position
+
+A fixed board configuration was used for debugging and consistent testing. This helped verify that move generation and board updates were working properly.
+
+### Randomized Starting Position
+
+We also experimented with randomized back-rank configurations where pieces were shuffled while still following valid placement rules.
+
+Testing different starting setups ensured that the engine works reliably across a wide variety of board states.
+
+---
+
+# Final Move Output
+
+Once the engine finishes its analysis, it returns the selected move in a readable format such as:
+
+1:A2 -> A3
+
+This indicates that a white pawn moves from square **A2** to **A3**.
+
+---
+
+# Conclusion
+
+In this project, we developed a chess engine capable of playing a **6 × 6 chess variant**.
+
+The engine generates legal moves, explores possible game continuations, evaluates board positions, and selects a move that appears most promising.
+
+By using efficient board representation and focusing on promising search paths, the engine can analyze deeper positions within a reasonable time.
+
+Working on this task helped us understand how strategic decision-making in board games can be translated into computational techniques and optimized for performance.
