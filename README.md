@@ -56,15 +56,9 @@ This component forms the decision-making part of the system.
 
 # Task 2: ArUco-Based Perception
 
-The perception module allows the system to understand the physical board setup from camera images.
+Our perception pipeline was built and validated within a simulation environment to ensure the board state is reconstructed both accurately and robustly. By processing a live overhead camera feed, the system utilizes OpenCV’s ArUco library to detect specific markers: IDs 21–24 define the arena corners for pose estimation, while IDs 1–10 identify the individual game pieces. To bridge the gap between pixels and physical space, we calculate a homography matrix using cv2.findHomography() based on those four corner markers. This allows the pixel_to_world() function to apply a cv2.perspectiveTransform(), converting any detected piece's center coordinate into precise world coordinates.
 
-To make detection reliable, we used **ArUco markers** placed on the board corners as well as on the pieces. These markers help the system identify important reference points in the image and determine the positions of the pieces relative to the board.
-
-The perception process involves detecting the markers in the image, identifying the board boundaries, and converting the detected positions into board coordinates. Once this mapping is established, the system determines which square each piece occupies.
-
-The result of this process is a board representation that can be directly used by the game engine.
-
-This module essentially acts as the bridge between the **physical environment and the decision-making system**.
+To map these coordinates to the actual 6×6 game grid, the pipeline normalizes the spatial range of -300mm to 300mm and divides by the 100mm square size, effectively pinpointing the exact row and column (0–5) for every piece. The final output is a 6×6 NumPy array that mirrors the board state required for our Task 1 logic. Throughout testing, the system proved it could handle various board configurations entirely on its own, achieving reliable marker detection and reconstruction without any manual calibration or hardcoded positions.
 
 ---
 
