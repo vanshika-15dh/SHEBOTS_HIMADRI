@@ -30,3 +30,34 @@ import numpy as np
 board = np.zeros(36, dtype=int)
 board = 4   # white queen
 board = 10 # black king
+
+This compact representation makes the engine faster when accessing or modifying squares.
+
+##Move Representation
+To keep the engine efficient, we represent every move using a single integer. The source and destination coordinates are packed together using bit operations.
+
+Example encoding:
+
+def encode_move(sr, sc, dr, dc):
+    return sr | (sc << 3) | (dr << 6) | (dc << 9)
+
+Decoding a move:
+def decode_move(move):
+    sr =  move        & 7
+    sc = (move >> 3)  & 7
+    dr = (move >> 6)  & 7
+    dc = (move >> 9)  & 7
+    return sr, sc, dr, dc
+
+Using integers instead of complex objects helps reduce memory usage and speeds up comparisons inside the search.
+
+##Exploring Possible Moves
+To choose the best move, the engine first generates all legal moves for the current player. For each move:
+
+The move is temporarily applied to the board.
+
+The program examines possible responses by the opponent.
+
+This process continues several steps into the future.
+
+Example of applying a move on a flat 36‑element board:
