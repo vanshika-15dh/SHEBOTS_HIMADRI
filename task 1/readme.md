@@ -1,4 +1,6 @@
-# Introduction
+# Task 1 – Autonomous Game Engine
+
+## Introduction
 
 In this task, we built a chess engine that can play a **6 × 6 chess variant**. The engine takes a board configuration as input and determines a strong move for the player whose turn it is.
 
@@ -10,7 +12,7 @@ This makes the engine much more practical and allows it to analyze deeper positi
 
 ---
 
-# Board Representation
+## Board Representation
 
 The chess board is stored as a **NumPy array of length 36**, which corresponds to the **6 × 6 board**.
 
@@ -47,7 +49,7 @@ Here, `0` represents an empty square.
 
 ---
 
-# Move Representation
+## Move Representation
 
 To keep the engine efficient, every move is represented in a **compact format**.
 
@@ -63,7 +65,7 @@ This approach becomes especially useful when the engine explores thousands of mo
 
 ---
 
-# Exploring Possible Moves
+## Exploring Possible Moves
 
 To decide the best move, the engine first generates **all legal moves** for the current player.
 
@@ -79,7 +81,7 @@ This helps reduce unnecessary computation and improves overall performance.
 
 ---
 
-# Gradual Deepening of Search
+## Gradual Deepening of Search
 
 Instead of immediately analyzing very deep positions, the engine searches **in stages**.
 
@@ -89,7 +91,7 @@ This method also helps the engine identify promising moves earlier and focus mor
 
 ---
 
-# Position Evaluation
+## Position Evaluation
 
 When the engine reaches the end of a search branch, it estimates how favorable the board position is.
 
@@ -106,7 +108,7 @@ Using these values, the engine calculates a score that indicates which player ha
 
 ---
 
-# Avoiding Repeated Calculations
+## Avoiding Repeated Calculations
 
 During the search, the same board position can sometimes appear through different move sequences.
 
@@ -116,7 +118,7 @@ This significantly improves efficiency, especially when the search goes deeper.
 
 ---
 
-# Pawn Promotion Rule
+## Pawn Promotion Rule
 
 The promotion rule in this variant is slightly different from standard chess.
 
@@ -131,7 +133,7 @@ This makes promotion depend on how the game has progressed.
 
 ---
 
-# Testing the Engine
+## Testing the Engine
 
 To make sure the engine behaves correctly, we tested it using different types of board setups.
 
@@ -147,7 +149,7 @@ Testing different starting setups ensured that the engine works reliably across 
 
 ---
 
-# Final Move Output
+## Final Move Output
 
 Once the engine finishes its analysis, it returns the selected move in a readable format such as:
 
@@ -157,7 +159,7 @@ This indicates that a white pawn moves from square **A2** to **A3**.
 
 ---
 
-# Conclusion
+## Conclusion
 
 In this project, we developed a chess engine capable of playing a **6 × 6 chess variant**.
 
